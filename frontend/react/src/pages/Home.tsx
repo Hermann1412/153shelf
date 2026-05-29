@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
 import type { Product } from '../types';
 
-const CATEGORIES = ['All', 'Fiction', 'Non-Fiction', 'Science', 'History', 'Biography', 'Technology', 'Children'];
+const CATEGORIES = ['All', 'Software Engineering', 'Artificial Intelligence', 'Machine Learning', 'Microservices', 'Cloud Computing', 'DevOps', 'Cybersecurity', 'Data Science', 'System Design', 'Web Development', 'Algorithms'];
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);

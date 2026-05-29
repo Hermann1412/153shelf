@@ -5,7 +5,9 @@ import { mediaUrl } from '../../lib/config';
 import toast from 'react-hot-toast';
 import type { Product } from '../../types';
 
-const emptyForm = { title: '', author: '', description: '', category: '', pages: '', language: 'English' };
+const CATEGORIES = ['Software Engineering', 'Artificial Intelligence', 'Machine Learning', 'Microservices', 'Cloud Computing', 'DevOps', 'Cybersecurity', 'Data Science', 'System Design', 'Web Development', 'Algorithms'];
+
+const emptyForm = { title: '', author: '', description: '', category: CATEGORIES[0], pages: '', language: 'English' };
 
 export default function ManageProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -149,7 +151,9 @@ export default function ManageProducts() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Category *</label>
-                  <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required />
+                  <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required>
+                    {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
                 </div>
               </div>
 
