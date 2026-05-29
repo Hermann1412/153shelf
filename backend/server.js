@@ -11,7 +11,18 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
 
-connectDB();
+const seedAdmin = async () => {
+  const User = require('./models/User');
+  const { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME } = process.env;
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return;
+  const exists = await User.findOne({ email: ADMIN_EMAIL });
+  if (!exists) {
+    await User.create({ name: ADMIN_NAME || 'Admin', email: ADMIN_EMAIL, password: ADMIN_PASSWORD, role: 'admin' });
+    console.log(`Admin created: ${ADMIN_EMAIL}`);
+  }
+};
+
+connectDB().then(seedAdmin).catch(() => {});
 
 const app = express();
 
