@@ -21,14 +21,22 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
+  'https://153shelf.vercel.app',
   process.env.CLIENT_URL,
-].filter(Boolean);
+].filter(Boolean).map((o) => o.replace(/\/$/, '')); // strip trailing slash
+
+console.log('Allowed CORS origins:', allowedOrigins);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error('Not allowed by CORS'));
+      // Allow server-to-server requests (no origin) and listed origins
+      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+        return callback(null, true);
+      }
+      console.log('Blocked origin:', origin);
+      callback(null, false);
     },
     credentials: true,
   })
