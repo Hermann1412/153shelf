@@ -2,7 +2,6 @@ require('dotenv').config();
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const express = require('express');
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const connectDB = require('./config/db');
@@ -16,15 +15,21 @@ connectDB();
 
 const app = express();
 
+// CORS — must be first, before every other middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,Cookie');
+  }
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
 
 // Cover images are public — PDFs are NOT exposed as static
 app.use('/uploads/covers', express.static(path.join(__dirname, 'uploads/covers')));
