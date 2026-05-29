@@ -1,4 +1,5 @@
-import { useState, useEffect, FormEvent, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { FormEvent } from 'react';
 import api from '../../api/axios';
 import { mediaUrl } from '../../lib/config';
 import toast from 'react-hot-toast';
