@@ -20,7 +20,13 @@ const seedAdmin = async () => {
   }
   const exists = await User.findOne({ email: ADMIN_EMAIL });
   if (exists) {
-    console.log(`Admin already exists: ${ADMIN_EMAIL}`);
+    if (exists.role !== 'admin') {
+      exists.role = 'admin';
+      await exists.save();
+      console.log(`Upgraded to admin: ${ADMIN_EMAIL}`);
+    } else {
+      console.log(`Admin already exists: ${ADMIN_EMAIL}`);
+    }
   } else {
     await User.create({ name: ADMIN_NAME || 'Admin', email: ADMIN_EMAIL, password: ADMIN_PASSWORD, role: 'admin' });
     console.log(`Admin created: ${ADMIN_EMAIL}`);
