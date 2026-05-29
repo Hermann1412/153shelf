@@ -39,7 +39,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 
-app.get('/', (req, res) => res.json({ message: '153Shelf API running' }));
+app.get('/', (req, res) => res.json({ message: '153Shelf API running', v: 2 }));
 
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
