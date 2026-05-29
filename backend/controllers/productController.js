@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const Product = require('../models/Product');
-const Order = require('../models/Order');
 
 const getProducts = async (req, res) => {
   try {
@@ -99,22 +98,12 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-// Protected: only buyers can access the PDF
+// Protected: any logged-in user can read for free
 const readBook = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Book not found' });
     if (!product.pdfPath) return res.status(404).json({ message: 'No PDF available for this book' });
-
-    const hasPurchased = await Order.findOne({
-      user: req.user._id,
-      'items.product': product._id,
-      paymentStatus: 'paid',
-    });
-
-    if (!hasPurchased && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Purchase this book to read it' });
-    }
 
     const filePath = path.resolve(product.pdfPath);
     if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'PDF file not found' });

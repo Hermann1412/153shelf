@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import type { Product } from '../types';
 
@@ -9,13 +9,11 @@ export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    api
-      .get(`/products/${id}`)
+    api.get(`/products/${id}`)
       .then((res) => setProduct(res.data))
       .catch(() => navigate('/'))
       .finally(() => setLoading(false));
@@ -24,16 +22,18 @@ export default function ProductDetail() {
   if (loading) return <div className="loading">Loading...</div>;
   if (!product) return null;
 
-  const handleAdd = () => {
-    addToCart(product, quantity);
-    toast.success(`${quantity}x "${product.title}" added to cart`);
+  const handleRead = () => {
+    if (!user) {
+      toast.error('Please login to read');
+      navigate('/login');
+      return;
+    }
+    navigate(`/read/${product._id}`);
   };
 
   return (
     <div className="container product-detail">
-      <button className="btn-back" onClick={() => navigate(-1)}>
-        &larr; Back
-      </button>
+      <button className="btn-back" onClick={() => navigate(-1)}>&larr; Back</button>
       <div className="detail-grid">
         <div className="detail-image">
           <img
@@ -44,28 +44,18 @@ export default function ProductDetail() {
         <div className="detail-info">
           <h1>{product.title}</h1>
           <p className="detail-author">by {product.author}</p>
-          <span className="detail-category">{product.category}</span>
+          <span className="product-category">{product.category}</span>
           <div className="detail-rating">
             {'★'.repeat(Math.round(product.rating))}{'☆'.repeat(5 - Math.round(product.rating))}
             <span> ({product.numReviews} reviews)</span>
           </div>
+          {product.pages && <p className="detail-meta">📄 {product.pages} pages &nbsp;·&nbsp; 🌐 {product.language}</p>}
           <p className="detail-description">{product.description}</p>
-          <p className="detail-price">${product.price.toFixed(2)}</p>
-          <p className={`detail-stock ${product.stock === 0 ? 'out' : ''}`}>
-            {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-          </p>
-          {product.stock > 0 && (
-            <div className="detail-actions">
-              <div className="qty-control">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-                <span>{quantity}</span>
-                <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}>+</button>
-              </div>
-              <button className="btn-primary" onClick={handleAdd}>
-                Add to Cart
-              </button>
-            </div>
-          )}
+          <div className="detail-free-badge">FREE</div>
+          <button className="btn-primary btn-read-large" onClick={handleRead}>
+            📖 Read Now — It's Free
+          </button>
+          {!user && <p className="detail-login-hint">You need to <span onClick={() => navigate('/login')} className="link">login</span> to read</p>}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import type { Product } from '../types';
 
@@ -8,11 +8,16 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  const { addToCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleAdd = () => {
-    addToCart(product);
-    toast.success(`"${product.title}" added to cart`);
+  const handleRead = () => {
+    if (!user) {
+      toast.error('Please login to read');
+      navigate('/login');
+      return;
+    }
+    navigate(`/read/${product._id}`);
   };
 
   return (
@@ -31,13 +36,9 @@ export default function ProductCard({ product }: Props) {
         <p className="product-author">{product.author}</p>
         <p className="product-category">{product.category}</p>
         <div className="product-footer">
-          <span className="product-price">${product.price.toFixed(2)}</span>
-          <button
-            className="btn-add"
-            onClick={handleAdd}
-            disabled={product.stock === 0}
-          >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          <span className="free-badge">FREE</span>
+          <button className="btn-add" onClick={handleRead}>
+            📖 Read
           </button>
         </div>
       </div>

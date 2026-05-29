@@ -119,6 +119,7 @@ main { min-height: calc(100vh - 70px); }
 .product-category { font-size: 0.75rem; color: var(--accent); background: rgba(233,69,96,0.1); padding: 2px 8px; border-radius: 99px; display: inline-block; margin-bottom: 0.75rem; }
 .product-footer { display: flex; justify-content: space-between; align-items: center; }
 .product-price { font-size: 1.1rem; font-weight: 700; color: var(--success); }
+.free-badge { font-size: 0.85rem; font-weight: 700; color: var(--success); background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 99px; }
 .btn-add { background: var(--accent); color: white; padding: 0.35rem 0.75rem; border-radius: var(--radius); font-size: 0.8rem; font-weight: 600; transition: background 0.2s; }
 .btn-add:hover { background: var(--accent-light); }
 .btn-add:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
@@ -144,6 +145,11 @@ main { min-height: calc(100vh - 70px); }
 .detail-price { font-size: 2rem; font-weight: 700; color: var(--success); margin: 1rem 0; }
 .detail-stock { font-size: 0.9rem; color: var(--success); margin-bottom: 1.5rem; }
 .detail-stock.out { color: var(--error); }
+.detail-free-badge { display: inline-block; font-size: 1.1rem; font-weight: 700; color: var(--success); background: rgba(16,185,129,0.15); padding: 4px 14px; border-radius: 99px; margin: 1rem 0 1.25rem; }
+.btn-read-large { font-size: 1.05rem; padding: 0.85rem 2rem; width: 100%; text-align: center; margin-bottom: 0.75rem; }
+.detail-meta { color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 1rem; }
+.detail-login-hint { font-size: 0.85rem; color: var(--text-muted); }
+.detail-login-hint .link { color: var(--accent); cursor: pointer; font-weight: 600; }
 .detail-actions { display: flex; gap: 1rem; align-items: center; }
 .qty-control { display: flex; align-items: center; gap: 0.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.3rem; }
 .qty-control button { background: transparent; color: var(--text); width: 28px; height: 28px; border-radius: 4px; font-size: 1.1rem; transition: background 0.15s; }
