@@ -11,20 +11,25 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
 
 connectDB();
 
 const app = express();
 
-// Stripe webhook needs raw body
-app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
-
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
@@ -36,7 +41,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req, res) => res.json({ message: '153Shelf API running' }));
 

@@ -110,6 +110,8 @@ const readBook = async (req, res) => {
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="${product.title}.pdf"`);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'private, no-store');
     fs.createReadStream(filePath).pipe(res);
   } catch (error) {
     res.status(500).json({ message: error.message });

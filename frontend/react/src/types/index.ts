@@ -20,11 +20,6 @@ export interface Product {
   createdAt: string;
 }
 
-export interface CartItem {
-  product: Product;
-  quantity: number;
-}
-
 export interface OrderItem {
   product: string;
   title: string;

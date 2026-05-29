@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { MEDIA_URL } from '../lib/config';
 import toast from 'react-hot-toast';
 import type { Product } from '../types';
 
@@ -37,7 +38,7 @@ export default function ProductDetail() {
       <div className="detail-grid">
         <div className="detail-image">
           <img
-            src={product.coverImage ? `http://localhost:5000${product.coverImage}` : 'https://placehold.co/300x420?text=No+Cover'}
+            src={product.coverImage ? `${MEDIA_URL}${product.coverImage}` : 'https://placehold.co/300x420?text=No+Cover'}
             alt={product.title}
           />
         </div>

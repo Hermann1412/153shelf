@@ -12,17 +12,16 @@ const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     items: [orderItemSchema],
-    totalPrice: { type: Number, required: true },
+    totalPrice: { type: Number, required: true, default: 0 },
     paymentStatus: {
       type: String,
       enum: ['pending', 'paid', 'failed'],
-      default: 'pending',
+      default: 'paid',
     },
-    stripePaymentIntentId: { type: String },
     status: {
       type: String,
       enum: ['pending', 'completed', 'cancelled'],
-      default: 'pending',
+      default: 'completed',
     },
   },
   { timestamps: true }

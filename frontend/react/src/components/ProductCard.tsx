@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { MEDIA_URL } from '../lib/config';
 import toast from 'react-hot-toast';
 import type { Product } from '../types';
 
@@ -24,7 +25,7 @@ export default function ProductCard({ product }: Props) {
     <div className="product-card">
       <Link to={`/products/${product._id}`}>
         <img
-          src={product.coverImage ? `http://localhost:5000${product.coverImage}` : 'https://placehold.co/200x280?text=No+Cover'}
+          src={product.coverImage ? `${MEDIA_URL}${product.coverImage}` : 'https://placehold.co/200x280?text=No+Cover'}
           alt={product.title}
           className="product-img"
         />
@@ -37,9 +38,7 @@ export default function ProductCard({ product }: Props) {
         <p className="product-category">{product.category}</p>
         <div className="product-footer">
           <span className="free-badge">FREE</span>
-          <button className="btn-add" onClick={handleRead}>
-            📖 Read
-          </button>
+          <button className="btn-add" onClick={handleRead}>📖 Read</button>
         </div>
       </div>
     </div>
