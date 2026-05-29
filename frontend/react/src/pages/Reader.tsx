@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_URL } from '../lib/config';
 
 function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -17,8 +18,7 @@ export default function Reader() {
   useEffect(() => {
     if (!id) return;
 
-    // Fetch book info to get the title and update URL slug
-    fetch(`/api/products/${id}`)
+    fetch(`${API_URL}/products/${id}`)
       .then(r => r.json())
       .then(book => {
         if (book.title) {
@@ -29,9 +29,7 @@ export default function Reader() {
       })
       .catch(() => {});
 
-    // Fetch PDF as a blob with credentials — creates a local blob:// URL
-    // so the browser's native PDF viewer always renders it inline
-    fetch(`/api/products/${id}/read`, { credentials: 'include' })
+    fetch(`${API_URL}/products/${id}/read`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('Could not load the book. Make sure you are logged in.');
         return res.blob();
