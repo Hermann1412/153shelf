@@ -14,15 +14,20 @@ const userRoutes = require('./routes/userRoutes');
 const seedAdmin = async () => {
   const User = require('./models/User');
   const { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME } = process.env;
-  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return;
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.log('Skipping admin seed: ADMIN_EMAIL or ADMIN_PASSWORD not set');
+    return;
+  }
   const exists = await User.findOne({ email: ADMIN_EMAIL });
-  if (!exists) {
+  if (exists) {
+    console.log(`Admin already exists: ${ADMIN_EMAIL}`);
+  } else {
     await User.create({ name: ADMIN_NAME || 'Admin', email: ADMIN_EMAIL, password: ADMIN_PASSWORD, role: 'admin' });
     console.log(`Admin created: ${ADMIN_EMAIL}`);
   }
 };
 
-connectDB().then(seedAdmin).catch(() => {});
+connectDB().then(seedAdmin).catch((err) => console.error('Seed error:', err.message));
 
 const app = express();
 
