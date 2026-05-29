@@ -3,7 +3,7 @@ import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import type { Order } from '../../types';
 
-const ORDER_STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+const ORDER_STATUSES = ['pending', 'completed', 'cancelled'];
 
 export default function ManageOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -25,37 +25,38 @@ export default function ManageOrders() {
 
   return (
     <div className="container admin-page">
-      <h2>Manage Orders</h2>
+      <h2>Manage Reads</h2>
       {loading ? <div className="loading">Loading...</div> : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Payment</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              {orders.map((o) => (
-                <tr key={o._id}>
-                  <td>#{o._id.slice(-8).toUpperCase()}</td>
-                  <td>{typeof o.user === 'object' ? o.user.name : o.user}</td>
-                  <td>{new Date(o.createdAt).toLocaleDateString()}</td>
-                  <td>${o.totalPrice.toFixed(2)}</td>
-                  <td>
-                    <span className={`badge ${o.paymentStatus}`}>{o.paymentStatus}</span>
-                  </td>
-                  <td>
-                    <select
-                      value={o.status}
-                      onChange={(e) => updateStatus(o._id, e.target.value)}
-                      className="status-select"
-                    >
-                      {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        orders.length === 0 ? (
+          <div className="empty-state"><p>No activity yet.</p></div>
+        ) : (
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr><th>ID</th><th>User</th><th>Books</th><th>Date</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {orders.map((o) => (
+                  <tr key={o._id}>
+                    <td>#{o._id.slice(-8).toUpperCase()}</td>
+                    <td>{typeof o.user === 'object' ? o.user.name : o.user}</td>
+                    <td>{o.items.map(i => i.title).join(', ')}</td>
+                    <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <select
+                        value={o.status}
+                        onChange={(e) => updateStatus(o._id, e.target.value)}
+                        className="status-select"
+                      >
+                        {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
       )}
     </div>
   );

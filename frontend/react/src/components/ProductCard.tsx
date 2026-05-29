@@ -37,7 +37,6 @@ export default function ProductCard({ product }: Props) {
         <p className="product-author">{product.author}</p>
         <p className="product-category">{product.category}</p>
         <div className="product-footer">
-          <span className="free-badge">FREE</span>
           <button className="btn-add" onClick={handleRead}>📖 Read</button>
         </div>
       </div>

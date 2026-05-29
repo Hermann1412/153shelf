@@ -6,11 +6,10 @@ interface Stats {
   users: number;
   products: number;
   orders: number;
-  revenue: number;
 }
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<Stats>({ users: 0, products: 0, orders: 0, revenue: 0 });
+  const [stats, setStats] = useState<Stats>({ users: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,22 +18,18 @@ export default function Dashboard() {
       api.get('/products?limit=1'),
       api.get('/orders'),
     ]).then(([usersRes, productsRes, ordersRes]) => {
-      const revenue = ordersRes.data.reduce((sum: number, o: { totalPrice: number; paymentStatus: string }) =>
-        o.paymentStatus === 'paid' ? sum + o.totalPrice : sum, 0);
       setStats({
         users: usersRes.data.length,
         products: productsRes.data.total,
         orders: ordersRes.data.length,
-        revenue,
       });
     }).finally(() => setLoading(false));
   }, []);
 
   const cards = [
     { label: 'Total Users', value: stats.users, link: '/admin/users', color: '#3b82f6' },
-    { label: 'Total Products', value: stats.products, link: '/admin/products', color: '#10b981' },
-    { label: 'Total Orders', value: stats.orders, link: '/admin/orders', color: '#f59e0b' },
-    { label: 'Revenue', value: `$${stats.revenue.toFixed(2)}`, link: '/admin/orders', color: '#8b5cf6' },
+    { label: 'Total Books', value: stats.products, link: '/admin/products', color: '#10b981' },
+    { label: 'Total Reads', value: stats.orders, link: '/admin/orders', color: '#f59e0b' },
   ];
 
   return (
@@ -53,8 +48,8 @@ export default function Dashboard() {
         </div>
       )}
       <div className="admin-nav">
-        <Link to="/admin/products" className="btn-primary">Manage Products</Link>
-        <Link to="/admin/orders" className="btn-primary">Manage Orders</Link>
+        <Link to="/admin/products" className="btn-primary">Manage Books</Link>
+        <Link to="/admin/orders" className="btn-primary">Manage Reads</Link>
         <Link to="/admin/users" className="btn-primary">Manage Users</Link>
       </div>
     </div>

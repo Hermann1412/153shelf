@@ -39,8 +39,8 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { title, author, description, price, category, pages, language } = req.body;
-    if (!title || !author || !description || !price || !category) {
+    const { title, author, description, category, pages, language } = req.body;
+    if (!title || !author || !description || !category) {
       return res.status(400).json({ message: 'All required fields must be provided' });
     }
     const coverImage = req.files?.cover
@@ -52,7 +52,6 @@ const createProduct = async (req, res) => {
 
     const product = await Product.create({
       title, author, description,
-      price: parseFloat(price),
       category, coverImage, pdfPath,
       pages: parseInt(pages) || 0,
       language: language || 'English',
@@ -68,7 +67,7 @@ const updateProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    const fields = ['title', 'author', 'description', 'price', 'category', 'pages', 'language'];
+    const fields = ['title', 'author', 'description', 'category', 'pages', 'language'];
     fields.forEach((f) => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
 
     if (req.files?.cover) {

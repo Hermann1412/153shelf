@@ -52,9 +52,8 @@ export default function ProductDetail() {
           </div>
           {product.pages && <p className="detail-meta">📄 {product.pages} pages &nbsp;·&nbsp; 🌐 {product.language}</p>}
           <p className="detail-description">{product.description}</p>
-          <div className="detail-free-badge">FREE</div>
           <button className="btn-primary btn-read-large" onClick={handleRead}>
-            📖 Read Now — It's Free
+            📖 Read Now
           </button>
           {!user && <p className="detail-login-hint">You need to <span onClick={() => navigate('/login')} className="link">login</span> to read</p>}
         </div>

@@ -4,7 +4,7 @@ import { MEDIA_URL } from '../../lib/config';
 import toast from 'react-hot-toast';
 import type { Product } from '../../types';
 
-const emptyForm = { title: '', author: '', description: '', price: '', category: '', pages: '', language: 'English' };
+const emptyForm = { title: '', author: '', description: '', category: '', pages: '', language: 'English' };
 
 export default function ManageProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -41,7 +41,7 @@ export default function ManageProducts() {
     setEditing(p);
     setForm({
       title: p.title, author: p.author, description: p.description,
-      price: String(p.price), category: p.category,
+      category: p.category,
       pages: String(p.pages || ''), language: p.language || 'English',
     });
     setCoverPreview(p.coverImage ? `${MEDIA_URL}${p.coverImage}` : '');
@@ -150,10 +150,6 @@ export default function ManageProducts() {
                   <label>Category *</label>
                   <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required />
                 </div>
-                <div className="form-group">
-                  <label>Price ($) *</label>
-                  <input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-                </div>
               </div>
 
               <div className="form-row">
@@ -196,7 +192,6 @@ export default function ManageProducts() {
                 <h4>{p.title}</h4>
                 <p>{p.author}</p>
                 <p className="book-admin-cat">{p.category}</p>
-                <p className="book-admin-price">${Number(p.price).toFixed(2)}</p>
                 {(p as unknown as { pdfPath?: string }).pdfPath !== undefined
                   ? <span className="badge paid">PDF ✓</span>
                   : <span className="badge pending">No PDF</span>

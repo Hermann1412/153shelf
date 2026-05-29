@@ -10,7 +10,6 @@ export interface Product {
   title: string;
   author: string;
   description: string;
-  price: number;
   category: string;
   coverImage: string;
   rating: number;
@@ -23,7 +22,6 @@ export interface Product {
 export interface OrderItem {
   product: string;
   title: string;
-  price: number;
   quantity: number;
   coverImage?: string;
 }
@@ -32,8 +30,6 @@ export interface Order {
   _id: string;
   user: User | string;
   items: OrderItem[];
-  totalPrice: number;
-  paymentStatus: 'pending' | 'paid' | 'failed';
   status: 'pending' | 'completed' | 'cancelled';
   createdAt: string;
 }

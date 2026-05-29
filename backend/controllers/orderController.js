@@ -2,15 +2,13 @@ const Order = require('../models/Order');
 
 const createOrder = async (req, res) => {
   try {
-    const { items, totalPrice } = req.body;
+    const { items } = req.body;
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'No order items' });
     }
     const order = await Order.create({
       user: req.user._id,
       items,
-      totalPrice: totalPrice || 0,
-      paymentStatus: 'paid',
       status: 'completed',
     });
     res.status(201).json(order);
