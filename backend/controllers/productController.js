@@ -1,6 +1,16 @@
-const path = require('path');
-const fs = require('fs');
+const https = require('https');
 const Product = require('../models/Product');
+const cloudinary = require('../config/cloudinary');
+
+// Upload a buffer to Cloudinary and return the result
+const streamToCloudinary = (buffer, options) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
+      if (result) resolve(result);
+      else reject(err);
+    });
+    stream.end(buffer);
+  });
 
 const getProducts = async (req, res) => {
   try {
@@ -17,7 +27,7 @@ const getProducts = async (req, res) => {
     }
     const total = await Product.countDocuments(filter);
     const products = await Product.find(filter)
-      .select('-pdfPath')
+      .select('-pdfPublicId -coverPublicId')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -29,7 +39,7 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).select('-pdfPath');
+    const product = await Product.findById(req.params.id).select('-pdfPublicId -coverPublicId');
     if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
   } catch (error) {
@@ -43,20 +53,40 @@ const createProduct = async (req, res) => {
     if (!title || !author || !description || !category) {
       return res.status(400).json({ message: 'All required fields must be provided' });
     }
-    const coverImage = req.files?.cover
-      ? `/uploads/covers/${req.files.cover[0].filename}`
-      : '';
-    const pdfPath = req.files?.pdf
-      ? req.files.pdf[0].path
-      : '';
+
+    let coverImage = '';
+    let coverPublicId = '';
+    let pdfPublicId = '';
+
+    if (req.files?.cover) {
+      const result = await streamToCloudinary(req.files.cover[0].buffer, {
+        folder: '153shelf/covers',
+        resource_type: 'image',
+      });
+      coverImage = result.secure_url;
+      coverPublicId = result.public_id;
+    }
+
+    if (req.files?.pdf) {
+      const result = await streamToCloudinary(req.files.pdf[0].buffer, {
+        folder: '153shelf/pdfs',
+        resource_type: 'raw',
+        type: 'private',
+      });
+      pdfPublicId = result.public_id;
+    }
 
     const product = await Product.create({
-      title, author, description,
-      category, coverImage, pdfPath,
+      title, author, description, category,
+      coverImage, coverPublicId, pdfPublicId,
       pages: parseInt(pages) || 0,
       language: language || 'English',
     });
-    res.status(201).json({ ...product.toObject(), pdfPath: undefined });
+
+    const obj = product.toObject();
+    delete obj.pdfPublicId;
+    delete obj.coverPublicId;
+    res.status(201).json(obj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -71,15 +101,35 @@ const updateProduct = async (req, res) => {
     fields.forEach((f) => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
 
     if (req.files?.cover) {
-      product.coverImage = `/uploads/covers/${req.files.cover[0].filename}`;
+      // Delete old cover from Cloudinary
+      if (product.coverPublicId) {
+        await cloudinary.uploader.destroy(product.coverPublicId, { resource_type: 'image' });
+      }
+      const result = await streamToCloudinary(req.files.cover[0].buffer, {
+        folder: '153shelf/covers',
+        resource_type: 'image',
+      });
+      product.coverImage = result.secure_url;
+      product.coverPublicId = result.public_id;
     }
+
     if (req.files?.pdf) {
-      product.pdfPath = req.files.pdf[0].path;
+      // Delete old PDF from Cloudinary
+      if (product.pdfPublicId) {
+        await cloudinary.uploader.destroy(product.pdfPublicId, { resource_type: 'raw', type: 'private' });
+      }
+      const result = await streamToCloudinary(req.files.pdf[0].buffer, {
+        folder: '153shelf/pdfs',
+        resource_type: 'raw',
+        type: 'private',
+      });
+      product.pdfPublicId = result.public_id;
     }
 
     const updated = await product.save();
     const obj = updated.toObject();
-    delete obj.pdfPath;
+    delete obj.pdfPublicId;
+    delete obj.coverPublicId;
     res.json(obj);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -90,7 +140,15 @@ const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
-    if (product.pdfPath && fs.existsSync(product.pdfPath)) fs.unlinkSync(product.pdfPath);
+
+    // Clean up Cloudinary resources
+    if (product.coverPublicId) {
+      await cloudinary.uploader.destroy(product.coverPublicId, { resource_type: 'image' });
+    }
+    if (product.pdfPublicId) {
+      await cloudinary.uploader.destroy(product.pdfPublicId, { resource_type: 'raw', type: 'private' });
+    }
+
     res.json({ message: 'Product deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -102,16 +160,27 @@ const readBook = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Book not found' });
-    if (!product.pdfPath) return res.status(404).json({ message: 'No PDF available for this book' });
+    if (!product.pdfPublicId) return res.status(404).json({ message: 'No PDF available for this book' });
 
-    const filePath = path.resolve(product.pdfPath);
-    if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'PDF file not found' });
+    // Generate a short-lived signed URL for the private PDF
+    const signedUrl = cloudinary.url(product.pdfPublicId, {
+      resource_type: 'raw',
+      type: 'private',
+      sign_url: true,
+      expires_at: Math.floor(Date.now() / 1000) + 300, // valid for 5 minutes
+    });
 
+    // Stream the PDF from Cloudinary to the client — keeps the PDF private
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="${product.title}.pdf"`);
-    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'private, no-store');
-    fs.createReadStream(filePath).pipe(res);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    https.get(signedUrl, (cloudRes) => {
+      cloudRes.pipe(res);
+    }).on('error', () => {
+      res.status(500).json({ message: 'Error loading PDF' });
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

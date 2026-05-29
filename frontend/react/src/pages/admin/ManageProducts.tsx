@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import api from '../../api/axios';
-import { MEDIA_URL } from '../../lib/config';
+import { mediaUrl } from '../../lib/config';
 import toast from 'react-hot-toast';
 import type { Product } from '../../types';
 
@@ -44,7 +44,7 @@ export default function ManageProducts() {
       category: p.category,
       pages: String(p.pages || ''), language: p.language || 'English',
     });
-    setCoverPreview(p.coverImage ? `${MEDIA_URL}${p.coverImage}` : '');
+    setCoverPreview(p.coverImage ? mediaUrl(p.coverImage) : '');
     setCoverFile(null);
     setPdfFile(null);
     setShowForm(true);
@@ -184,7 +184,7 @@ export default function ManageProducts() {
           {products.map((p) => (
             <div key={p._id} className="book-admin-card">
               <img
-                src={p.coverImage ? `${MEDIA_URL}${p.coverImage}` : 'https://placehold.co/120x170?text=No+Cover'}
+                src={p.coverImage ? mediaUrl(p.coverImage) : 'https://placehold.co/120x170?text=No+Cover'}
                 alt={p.title}
                 className="book-admin-cover"
               />

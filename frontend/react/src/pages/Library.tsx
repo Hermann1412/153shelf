@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { MEDIA_URL } from '../lib/config';
+import { mediaUrl } from '../lib/config';
 import type { Product } from '../types';
 
 export default function Library() {
@@ -30,7 +30,7 @@ export default function Library() {
           {books.map((book) => (
             <div key={book._id} className="library-card">
               <img
-                src={book.coverImage ? `${MEDIA_URL}${book.coverImage}` : 'https://placehold.co/180x240?text=No+Cover'}
+                src={book.coverImage ? mediaUrl(book.coverImage) : 'https://placehold.co/180x240?text=No+Cover'}
                 alt={book.title}
                 className="library-cover"
               />
