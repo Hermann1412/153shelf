@@ -12,10 +12,11 @@ export interface Product {
   description: string;
   price: number;
   category: string;
-  image: string;
-  stock: number;
+  coverImage: string;
   rating: number;
   numReviews: number;
+  pages?: number;
+  language?: string;
   createdAt: string;
 }
 
@@ -29,15 +30,7 @@ export interface OrderItem {
   title: string;
   price: number;
   quantity: number;
-  image?: string;
-}
-
-export interface ShippingAddress {
-  fullName: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
+  coverImage?: string;
 }
 
 export interface Order {
@@ -45,9 +38,7 @@ export interface Order {
   user: User | string;
   items: OrderItem[];
   totalPrice: number;
-  shippingAddress: ShippingAddress;
-  paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'completed' | 'cancelled';
   createdAt: string;
 }

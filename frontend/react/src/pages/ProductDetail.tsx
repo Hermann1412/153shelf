@@ -37,7 +37,7 @@ export default function ProductDetail() {
       <div className="detail-grid">
         <div className="detail-image">
           <img
-            src={product.image || 'https://placehold.co/300x420?text=No+Cover'}
+            src={product.coverImage ? `http://localhost:5000${product.coverImage}` : 'https://placehold.co/300x420?text=No+Cover'}
             alt={product.title}
           />
         </div>

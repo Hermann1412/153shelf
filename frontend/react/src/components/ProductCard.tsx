@@ -19,7 +19,7 @@ export default function ProductCard({ product }: Props) {
     <div className="product-card">
       <Link to={`/products/${product._id}`}>
         <img
-          src={product.image || 'https://placehold.co/200x280?text=No+Cover'}
+          src={product.coverImage ? `http://localhost:5000${product.coverImage}` : 'https://placehold.co/200x280?text=No+Cover'}
           alt={product.title}
           className="product-img"
         />

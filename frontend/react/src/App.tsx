@@ -11,6 +11,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
+import Reader from './pages/Reader';
 import Dashboard from './pages/admin/Dashboard';
 import ManageProducts from './pages/admin/ManageProducts';
 import ManageOrders from './pages/admin/ManageOrders';
@@ -38,6 +39,10 @@ export default function App() {
               <Route
                 path="/orders"
                 element={<ProtectedRoute><Orders /></ProtectedRoute>}
+              />
+              <Route
+                path="/read/:id"
+                element={<ProtectedRoute><Reader /></ProtectedRoute>}
               />
               <Route
                 path="/admin"

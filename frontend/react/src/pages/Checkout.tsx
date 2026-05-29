@@ -5,7 +5,6 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import api from '../api/axios';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
-import type { ShippingAddress } from '../types';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
 
@@ -15,22 +14,10 @@ function CheckoutForm() {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [address, setAddress] = useState<ShippingAddress>({
-    fullName: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    country: '',
-  });
-
-  const handleChange = (field: keyof ShippingAddress) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress((prev) => ({ ...prev, [field]: e.target.value }));
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
-
     const cardEl = elements.getElement(CardElement);
     if (!cardEl) return;
 
@@ -52,18 +39,17 @@ function CheckoutForm() {
         title: i.product.title,
         price: i.product.price,
         quantity: i.quantity,
-        image: i.product.image,
+        coverImage: i.product.coverImage,
       }));
 
       await api.post('/orders', {
         items: orderItems,
         totalPrice,
-        shippingAddress: address,
         stripePaymentIntentId: paymentIntent?.id,
       });
 
       clearCart();
-      toast.success('Order placed successfully!');
+      toast.success('Purchase complete! Books added to your library.');
       navigate('/orders');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Checkout failed';
@@ -76,27 +62,12 @@ function CheckoutForm() {
   return (
     <form onSubmit={handleSubmit} className="checkout-form">
       <div className="checkout-section">
-        <h3>Shipping Address</h3>
-        {(['fullName', 'address', 'city', 'postalCode', 'country'] as (keyof ShippingAddress)[]).map((field) => (
-          <div className="form-group" key={field}>
-            <label>{field.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())}</label>
-            <input
-              type="text"
-              value={address[field]}
-              onChange={handleChange(field)}
-              required
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="checkout-section">
-        <h3>Payment</h3>
+        <h3>Payment Details</h3>
+        <p className="checkout-note">Digital delivery — books are instantly added to your library after payment.</p>
         <div className="card-element-wrapper">
-          <CardElement options={{ style: { base: { fontSize: '16px', color: '#1a1a2e' } } }} />
+          <CardElement options={{ style: { base: { fontSize: '16px', color: '#e0e0e0', '::placeholder': { color: '#a0a0b0' } } } }} />
         </div>
       </div>
-
       <div className="checkout-summary">
         <p>Total: <strong>${totalPrice.toFixed(2)}</strong></p>
         <button type="submit" className="btn-primary full-width" disabled={!stripe || loading}>
@@ -126,13 +97,27 @@ export default function Checkout() {
           </Elements>
         </div>
         <div className="checkout-right">
-          <h3>Order Items</h3>
+          <h3>Your Order</h3>
           {items.map(({ product, quantity }) => (
             <div key={product._id} className="checkout-item">
-              <span>{product.title} x{quantity}</span>
+              <div className="checkout-item-info">
+                <img
+                  src={product.coverImage ? `http://localhost:5000${product.coverImage}` : 'https://placehold.co/50x70?text=Book'}
+                  alt={product.title}
+                  className="checkout-item-img"
+                />
+                <div>
+                  <p>{product.title}</p>
+                  <p className="checkout-item-author">{product.author}</p>
+                </div>
+              </div>
               <span>${(product.price * quantity).toFixed(2)}</span>
             </div>
           ))}
+          <div className="checkout-total-row">
+            <strong>Total</strong>
+            <strong>${items.reduce((s, i) => s + i.product.price * i.quantity, 0).toFixed(2)}</strong>
+          </div>
         </div>
       </div>
     </div>

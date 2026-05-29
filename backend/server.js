@@ -1,7 +1,10 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/authRoutes');
@@ -25,6 +28,9 @@ app.use(
     credentials: true,
   })
 );
+
+// Cover images are public — PDFs are NOT exposed as static
+app.use('/uploads/covers', express.static(path.join(__dirname, 'uploads/covers')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
